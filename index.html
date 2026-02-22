@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexora Video Editor - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#8a2ce2",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#0f0f12",
+                        "surface-dark": "#1a1a1e",
+                        "border-dark": "#2d2d33",
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="w-64 border-r border-slate-200 dark:border-border-dark bg-white dark:bg-surface-dark flex flex-col shrink-0">
+            <div class="p-6 flex items-center gap-3">
+                <div class="size-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/25">
+                    <span class="material-symbols-outlined text-2xl">movie_filter</span>
+                </div>
+                <h1 class="text-xl font-extrabold tracking-tight">Nexora</h1>
+            </div>
+            
+            <nav class="flex-1 px-4 space-y-2">
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary font-medium" href="#">
+                    <span class="material-symbols-outlined fill-icon">home</span>
+                    Home
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors" href="media-library.html">
+                    <span class="material-symbols-outlined">folder_open</span>
+                    Media Library
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors" href="#">
+                    <span class="material-symbols-outlined">dashboard_customize</span>
+                    Templates
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors" href="#">
+                    <span class="material-symbols-outlined">cloud_done</span>
+                    Cloud Projects
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors" href="#">
+                    <span class="material-symbols-outlined">group</span>
+                    Team Space
+                </a>
+                <div class="pt-4 mt-4 border-t border-slate-200 dark:border-border-dark">
+                    <p class="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Recent</p>
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer" onclick="openProject('Cinematic_Vlog')">
+                            <span class="material-symbols-outlined text-primary text-sm">videocam</span>
+                            <span class="truncate">Cinematic_Vlog</span>
+                        </div>
+                        <div class="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer" onclick="openProject('Product_Showcase')">
+                            <span class="material-symbols-outlined text-primary text-sm">videocam</span>
+                            <span class="truncate">Product_Showcase</span>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            
+            <div class="p-4 border-t border-slate-200 dark:border-border-dark">
+                <div class="bg-gradient-to-br from-primary/20 to-primary/5 rounded-xl p-4 border border-primary/20">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-sm font-semibold">Pro Plan</span>
+                        <span class="badge badge-primary">Active</span>
+                    </div>
+                    <div class="progress-bar mb-2">
+                        <div class="progress-bar-fill" style="width: 75%"></div>
+                    </div>
+                    <p class="text-xs text-slate-500">1.5 GB of 2 GB used</p>
+                    <button class="mt-3 w-full py-2 bg-primary text-white text-xs font-bold rounded-lg hover:brightness-110 transition-all">
+                        UPGRADE PLAN
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-4 border-t border-slate-200 dark:border-border-dark">
+                <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors" href="#">
+                    <span class="material-symbols-outlined">settings</span>
+                    Settings
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="h-16 border-b border-slate-200 dark:border-border-dark bg-white dark:bg-surface-dark px-8 flex items-center justify-between shrink-0">
+                <div class="flex-1 max-w-xl">
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+                        <input class="w-full bg-slate-100 dark:bg-background-dark border-none rounded-xl pl-10 pr-4 py-2.5 focus:ring-2 focus:ring-primary/50 text-sm" placeholder="Search projects, templates..." type="text" id="searchInput">
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button class="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full relative" onclick="showNotifications()">
+                        <span class="material-symbols-outlined">notifications</span>
+                        <span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-white dark:border-surface-dark"></span>
+                    </button>
+                    <button class="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full">
+                        <span class="material-symbols-outlined">help</span>
+                    </button>
+                    <div class="h-8 w-[1px] bg-slate-200 dark:bg-border-dark mx-2"></div>
+                    <div class="flex items-center gap-3 cursor-pointer group" onclick="showUserMenu()">
+                        <div class="text-right hidden sm:block">
+                            <p class="text-sm font-semibold">Alex Rivera</p>
+                            <p class="text-xs text-slate-500">Pro Plan</p>
+                        </div>
+                        <div class="size-10 rounded-full bg-gradient-to-br from-primary to-purple-400 overflow-hidden ring-2 ring-transparent group-hover:ring-primary/30 transition-all flex items-center justify-center text-white font-bold">
+                            <span class="material-symbols-outlined">person</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Body -->
+            <div class="flex-1 overflow-y-auto p-8 space-y-8">
+                <!-- Welcome Section -->
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                    <div>
+                        <h2 class="text-3xl font-extrabold tracking-tight">Welcome back, Alex</h2>
+                        <p class="text-slate-500 dark:text-slate-400 mt-1">You have <span class="text-primary font-semibold">12 active projects</span> this month.</p>
+                    </div>
+                    <button class="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg shadow-primary/25" onclick="createNewProject()">
+                        <span class="material-symbols-outlined">add</span>
+                        New Project
+                    </button>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="panel p-4 flex items-center gap-4">
+                        <div class="size-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-primary text-2xl">videocam</span>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-bold">24</p>
+                            <p class="text-xs text-slate-500">Total Projects</p>
+                        </div>
+                    </div>
+                    <div class="panel p-4 flex items-center gap-4">
+                        <div class="size-12 rounded-xl bg-green-500/10 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-green-500 text-2xl">check_circle</span>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-bold">18</p>
+                            <p class="text-xs text-slate-500">Completed</p>
+                        </div>
+                    </div>
+                    <div class="panel p-4 flex items-center gap-4">
+                        <div class="size-12 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-amber-500 text-2xl">schedule</span>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-bold">6</p>
+                            <p class="text-xs text-slate-500">In Progress</p>
+                        </div>
+                    </div>
+                    <div class="panel p-4 flex items-center gap-4">
+                        <div class="size-12 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-blue-500 text-2xl">schedule</span>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-bold">2.4h</p>
+                            <p class="text-xs text-slate-500">Saved This Week</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="flex items-center gap-2 border-b border-slate-200 dark:border-border-dark pb-1">
+                    <button class="px-4 py-2 text-sm font-medium border-b-2 border-primary text-primary" onclick="filterProjects('all')">All Projects</button>
+                    <button class="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 border-b-2 border-transparent" onclick="filterProjects('in_progress')">In Progress</button>
+                    <button class="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 border-b-2 border-transparent" onclick="filterProjects('completed')">Completed</button>
+                    <button class="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 border-b-2 border-transparent" onclick="filterProjects('draft')">Drafts</button>
+                </div>
+
+                <!-- Projects Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="projectsGrid">
+                    <!-- Project Card 1 -->
+                    <div class="project-card group" data-status="in_progress" onclick="openProject('Cinematic_Vlog')">
+                        <div class="aspect-video bg-gradient-to-br from-primary/30 to-purple-900/50 relative overflow-hidden">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-4xl text-white/50">movie</span>
+                            </div>
+                            <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button class="p-1.5 bg-white/90 dark:bg-surface-dark/90 rounded-md shadow-sm" onclick="event.stopPropagation(); showProjectMenu(this)">
+                                    <span class="material-symbols-outlined text-slate-600 dark:text-slate-300 text-sm">more_vert</span>
+                                </button>
+                            </div>
+                            <div class="absolute top-3 left-3">
+                                <span class="badge badge-warning">In Progress</span>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg group-hover:text-primary transition-colors">Cinematic Vlog</h3>
+                            <p class="text-xs text-slate-500 mt-1">Edited 2 hours ago</p>
+                            <div class="mt-4 flex items-center justify-between">
+                                <div class="flex -space-x-2">
+                                    <div class="size-7 rounded-full border-2 border-white dark:border-surface-dark bg-gradient-to-br from-pink-500 to-orange-400 flex items-center justify-center text-[10px] font-bold text-white">AR</div>
+                                    <div class="size-7 rounded-full border-2 border-white dark:border-surface-dark bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-[10px] font-bold text-white">JD</div>
+                                </div>
+                                <span class="text-xs text-slate-500">04:22</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 2 -->
+                    <div class="project-card group" data-status="completed" onclick="openProject('Product_Showcase')">
+                        <div class="aspect-video bg-gradient-to-br from-blue-500/30 to-cyan-900/50 relative overflow-hidden">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-4xl text-white/50">shopping_bag</span>
+                            </div>
+                            <div class="absolute top-3 left-3">
+                                <span class="badge badge-success">Completed</span>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg group-hover:text-primary transition-colors">Product Showcase</h3>
+                            <p class="text-xs text-slate-500 mt-1">Edited yesterday</p>
+                            <div class="mt-4 flex items-center justify-between">
+                                <div class="flex -space-x-2">
+                                    <div class="size-7 rounded-full border-2 border-white dark:border-surface-dark bg-gradient-to-br from-green-500 to-emerald-400 flex items-center justify-center text-[10px] font-bold text-white">MR</div>
+                                </div>
+                                <span class="text-xs text-slate-500">01:45</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 3 -->
+                    <div class="project-card group" data-status="in_progress" onclick="openProject('Mobile_App_Demo')">
+                        <div class="aspect-video bg-gradient-to-br from-amber-500/30 to-orange-900/50 relative overflow-hidden">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-4xl text-white/50">smartphone</span>
+                            </div>
+                            <div class="absolute top-3 left-3">
+                                <span class="badge badge-warning">Review</span>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg group-hover:text-primary transition-colors">Mobile App Demo</h3>
+                            <p class="text-xs text-slate-500 mt-1">Edited 3 days ago</p>
+                            <div class="mt-4 flex items-center justify-between">
+                                <div class="flex -space-x-2">
+                                    <div class="size-7 rounded-full border-2 border-white dark:border-surface-dark bg-gradient-to-br from-purple-500 to-pink-400 flex items-center justify-center text-[10px] font-bold text-white">+4</div>
+                                </div>
+                                <span class="text-xs text-slate-500">02:10</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 4 -->
+                    <div class="project-card group" data-status="draft" onclick="openProject('Travel_Edit')">
+                        <div class="aspect-video bg-gradient-to-br from-emerald-500/30 to-teal-900/50 relative overflow-hidden">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-4xl text-white/50">flight_takeoff</span>
+                            </div>
+                            <div class="absolute top-3 left-3">
+                                <span class="badge badge-primary">Draft</span>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg group-hover:text-primary transition-colors">Travel Edit</h3>
+                            <p class="text-xs text-slate-500 mt-1">Created 1 week ago</p>
+                            <div class="mt-4 flex items-center justify-between">
+                                <div class="flex -space-x-2">
+                                    <div class="size-7 rounded-full border-2 border-white dark:border-surface-dark bg-gradient-to-br from-indigo-500 to-blue-400 flex items-center justify-center text-[10px] font-bold text-white">JD</div>
+                                </div>
+                                <span class="text-xs text-slate-500">00:00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty Project Slot -->
+                    <div class="border-2 border-dashed border-slate-200 dark:border-border-dark rounded-xl flex flex-col items-center justify-center p-8 hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer aspect-video" onclick="createNewProject()">
+                        <div class="size-14 rounded-full bg-slate-100 dark:bg-border-dark flex items-center justify-center text-slate-400 group-hover:text-primary group-hover:bg-primary/10 transition-colors mb-3">
+                            <span class="material-symbols-outlined text-4xl">add</span>
+                        </div>
+                        <p class="font-bold text-slate-600 dark:text-slate-400 group-hover:text-primary transition-colors">Create New Project</p>
+                    </div>
+                </div>
+
+                <!-- Templates Section -->
+                <div class="pt-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-bold">Popular Templates</h3>
+                        <a href="#" class="text-primary text-sm font-medium">View All</a>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="asset-card group">
+                            <div class="aspect-video bg-gradient-to-br from-pink-500/30 to-rose-900/50 relative overflow-hidden flex items-center justify-center">
+                                <span class="material-symbols-outlined text-5xl text-white/30">movie</span>
+                                <div class="absolute bottom-2 right-2 bg-black/60 px-2 py-0.5 rounded text-[10px] font-bold text-white">00:30</div>
+                            </div>
+                            <div class="p-3">
+                                <h4 class="font-semibold text-sm">Social Media Intro</h4>
+                                <p class="text-xs text-slate-500">1080x1920 • 15 templates</p>
+                            </div>
+                        </div>
+                        <div class="asset-card group">
+                            <div class="aspect-video bg-gradient-to-br from-blue-500/30 to-indigo-900/50 relative overflow-hidden flex items-center justify-center">
+                                <span class="material-symbols-outlined text-5xl text-white/30">music_video</span>
+                                <div class="absolute bottom-2 right-2 bg-black/60 px-2 py-0.5 rounded text-[10px] font-bold text-white">01:00</div>
+                            </div>
+                            <div class="p-3">
+                                <h4 class="font-semibold text-sm">Music Lyrics</h4>
+                                <p class="text-xs text-slate-500">1920x1080 • 23 templates</p>
+                            </div>
+                        </div>
+                        <div class="asset-card group">
+                            <div class="aspect-video bg-gradient-to-br from-emerald-500/30 to-green-900/50 relative overflow-hidden flex items-center justify-center">
+                                <span class="material-symbols-outlined text-5xl text-white/30">slideshow</span>
+                                <div class="absolute bottom-2 right-2 bg-black/60 px-2 py-0.5 rounded text-[10px] font-bold text-white">02:00</div>
+                            </div>
+                            <div class="p-3">
+                                <h4 class="font-semibold text-sm">Travel Vlog</h4>
+                                <p class="text-xs text-slate-500">1080x1920 • 31 templates</p>
+                            </div>
+                        </div>
+                        <div class="asset-card group">
+                            <div class="aspect-video bg-gradient-to-br from-purple-500/30 to-violet-900/50 relative overflow-hidden flex items-center justify-center">
+                                <span class="material-symbols-outlined text-5xl text-white/30">video_library</span>
+                                <div class="absolute bottom-2 right-2 bg-black/60 px-2 py-0.5 rounded text-[10px] font-bold text-white">03:00</div>
+                            </div>
+                            <div class="p-3">
+                                <h4 class="font-semibold text-sm"> Promo Video</h4>
+                                <p class="text-xs text-slate-500">1920x1080 • 18 templates</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Project Modal -->
+    <div id="createProjectModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold">Create New Project</h2>
+                <button onclick="closeModal('createProjectModal')" class="p-2 hover:bg-white/5 rounded-lg">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Project Name</label>
+                    <input type="text" class="input-field" id="newProjectName" placeholder="Enter project name">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Resolution</label>
+                    <select class="input-field" id="newProjectResolution">
+                        <option value="1920x1080">1920 x 1080 (1080p)</option>
+                        <option value="3840x2160">3840 x 2160 (4K)</option>
+                        <option value="1080x1920">1080 x 1920 (Vertical)</option>
+                        <option value="1080x1080">1080 x 1080 (Square)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Frame Rate</label>
+                    <select class="input-field" id="newProjectFps">
+                        <option value="24">24 FPS (Cinematic)</option>
+                        <option value="30">30 FPS (Standard)</option>
+                        <option value="60">60 FPS (Smooth)</option>
+                    </select>
+                </div>
+                <div class="flex gap-3 mt-6">
+                    <button class="btn-secondary flex-1" onclick="closeModal('createProjectModal')">Cancel</button>
+                    <button class="btn-primary flex-1" onclick="confirmCreateProject()">Create Project</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed bottom-6 right-6 z-50 space-y-3"></div>
+
+    <script src="js/main.js"></script>
+    <script>
+        // Dashboard specific functions
+        function filterProjects(status) {
+            const cards = document.querySelectorAll('.project-card');
+            const buttons = document.querySelectorAll('[onclick^="filterProjects"]');
+            
+            buttons.forEach(btn => {
+                btn.classList.remove('border-primary', 'text-primary');
+                btn.classList.add('border-transparent', 'text-slate-500');
+            });
+            event.target.classList.remove('border-transparent', 'text-slate-500');
+            event.target.classList.add('border-primary', 'text-primary');
+            
+            cards.forEach(card => {
+                if (status === 'all' || card.dataset.status === status) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function createNewProject() {
+            document.getElementById('createProjectModal').classList.remove('hidden');
+            document.getElementById('newProjectName').focus();
+        }
+
+        function confirmCreateProject() {
+            const name = document.getElementById('newProjectName').value.trim();
+            const resolution = document.getElementById('newProjectResolution').value;
+            const fps = document.getElementById('newProjectFps').value;
+            
+            if (!name) {
+                showToast('Please enter a project name', 'error');
+                return;
+            }
+            
+            // Save to localStorage
+            const projects = JSON.parse(localStorage.getItem('nexoraProjects') || '[]');
+            projects.push({
+                id: Date.now(),
+                name: name,
+                resolution: resolution,
+                fps: fps,
+                status: 'draft',
+                created: new Date().toISOString(),
+                edited: new Date().toISOString(),
+                duration: 0,
+                thumbnail: null
+            });
+            localStorage.setItem('nexoraProjects', JSON.stringify(projects));
+            
+            closeModal('createProjectModal');
+            showToast('Project created successfully!', 'success');
+            
+            // Redirect to editor after a short delay
+            setTimeout(() => {
+                window.location.href = 'editor.html?project=' + encodeURIComponent(name);
+            }, 1000);
+        }
+
+        function openProject(projectName) {
+            window.location.href = 'editor.html?project=' + encodeURIComponent(projectName);
+        }
+
+        // Initialize with sample data if empty
+        if (!localStorage.getItem('nexoraProjects')) {
+            localStorage.setItem('nexoraProjects', JSON.stringify([
+                { id: 1, name: 'Cinematic_Vlog', status: 'in_progress', duration: 262, edited: '2 hours ago' },
+                { id: 2, name: 'Product_Showcase', status: 'completed', duration: 105, edited: 'yesterday' },
+                { id: 3, name: 'Mobile_App_Demo', status: 'in_progress', duration: 130, edited: '3 days ago' },
+                { id: 4, name: 'Travel_Edit', status: 'draft', duration: 0, edited: '1 week ago' }
+            ]));
+        }
+    </script>
+</body>
+</html>

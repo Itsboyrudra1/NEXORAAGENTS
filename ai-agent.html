@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexora AI Agent</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#8c2bee",
+                        "primary-light": "#a855f7",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#191022",
+                        "surface": "#241935",
+                        "surface-light": "#2d2042",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .glow-pulse {
+            animation: glow 2s ease-in-out infinite;
+        }
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(140, 43, 238, 0.4); }
+            50% { box-shadow: 0 0 40px rgba(140, 43, 238, 0.8); }
+        }
+        .typing-indicator span {
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        .avatar-glow {
+            filter: drop-shadow(0 0 20px rgba(140, 43, 238, 0.6));
+        }
+    </style>
+</head>
+<body class="bg-background-dark font-display text-slate-100 h-screen flex flex-col overflow-hidden">
+    <!-- Header -->
+    <header class="flex items-center justify-between px-4 py-3 bg-surface/80 backdrop-blur-lg border-b border-primary/10">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                <span class="material-symbols-outlined text-primary">smart_toy</span>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg">Nexora AI</h1>
+                <p class="text-xs text-slate-400 flex items-center gap-1">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    Online
+                </p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="clearChat()" class="p-2 rounded-lg hover:bg-white/5 transition-colors">
+                <span class="material-symbols-outlined text-slate-400">delete_outline</span>
+            </button>
+            <button onclick="toggleSettings()" class="p-2 rounded-lg hover:bg-white/5 transition-colors">
+                <span class="material-symbols-outlined text-slate-400">settings</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Chat Area -->
+    <main class="flex-1 overflow-hidden flex flex-col">
+        <!-- AI Avatar Section -->
+        <div class="flex-1 flex items-center justify-center p-6 relative">
+            <!-- Background glow -->
+            <div class="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-primary/5"></div>
+            
+            <div class="relative z-10 flex flex-col items-center">
+                <!-- AI Avatar -->
+                <div class="relative mb-4">
+                    <div class="w-32 h-32 rounded-full bg-gradient-to-br from-primary to-primary-light flex items-center justify-center avatar-glow">
+                        <span class="material-symbols-outlined text-6xl text-white">face</span>
+                    </div>
+                    <!-- Speaking indicator -->
+                    <div id="speaking-ring" class="absolute inset-0 rounded-full border-4 border-primary animate-ping opacity-0"></div>
+                    <div id="listening-ring" class="absolute -inset-2 rounded-full border-2 border-primary/50 glow-pulse"></div>
+                </div>
+                
+                <!-- Status -->
+                <p id="ai-status" class="text-sm text-slate-400">Ready to chat</p>
+                
+                <!-- Quick Actions -->
+                <div class="flex gap-2 mt-4">
+                    <button onclick="toggleVoiceInput()" id="mic-btn" class="p-3 rounded-full bg-surface-light hover:bg-primary/20 transition-colors">
+                        <span class="material-symbols-outlined text-xl">mic</span>
+                    </button>
+                    <button onclick="speakLastResponse()" class="p-3 rounded-full bg-surface-light hover:bg-primary/20 transition-colors">
+                        <span class="material-symbols-outlined text-xl">volume_up</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Messages -->
+        <div id="chat-container" class="flex-1 overflow-y-auto hide-scrollbar px-4 pb-4 space-y-4">
+            <!-- Welcome Message -->
+            <div class="flex gap-3">
+                <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-sm text-primary">smart_toy</span>
+                </div>
+                <div class="bg-surface-light rounded-2xl rounded-tl-md px-4 py-3 max-w-[80%]">
+                    <p class="text-sm">Hey there! I'm Nexora, your AI friend. We can talk about anything - life, hobbies, ideas, or just hang out. What's on your mind?</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Voice Wave Visualization -->
+        <div id="voice-viz" class="h-12 flex items-center justify-center gap-1 opacity-0 transition-opacity">
+            <div class="w-1 h-4 bg-primary rounded-full animate-pulse"></div>
+            <div class="w-1 h-6 bg-primary rounded-full animate-pulse delay-75"></div>
+            <div class="w-1 h-3 bg-primary rounded-full animate-pulse delay-150"></div>
+            <div class="w-1 h-5 bg-primary rounded-full animate-pulse delay-100"></div>
+            <div class="w-1 h-4 bg-primary rounded-full animate-pulse delay-50"></div>
+            <div class="w-1 h-6 bg-primary rounded-full animate-pulse"></div>
+            <div class="w-1 h-3 bg-primary rounded-full animate-pulse delay-75"></div>
+            <div class="w-1 h-5 bg-primary rounded-full animate-pulse delay-150"></div>
+        </div>
+    </main>
+
+    <!-- Input Area -->
+    <div class="p-4 bg-surface/80 backdrop-blur-lg border-t border-primary/10">
+        <div class="flex items-end gap-3">
+            <button class="p-3 rounded-full bg-surface-light hover:bg-primary/20 transition-colors shrink-0">
+                <span class="material-symbols-outlined">add</span>
+            </button>
+            <div class="flex-1 relative">
+                <input 
+                    type="text" 
+                    id="user-input" 
+                    placeholder="Type a message..."
+                    class="w-full bg-surface-light rounded-2xl px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-slate-500"
+                    onkeypress="handleKeyPress(event)"
+                >
+                <button onclick="sendMessage()" class="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-primary hover:brightness-110 transition-all">
+                    <span class="material-symbols-outlined text-sm fill-icon">send</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Quick Replies -->
+        <div class="flex gap-2 mt-3 overflow-x-auto hide-scrollbar">
+            <button onclick="sendQuickReply('How are you?')" class="shrink-0 px-4 py-1.5 rounded-full bg-surface-light text-xs hover:bg-primary/20 transition-colors">How are you?</button>
+            <button onclick="sendQuickReply('Tell me a joke')" class="shrink-0 px-4 py-1.5 rounded-full bg-surface-light text-xs hover:bg-primary/20 transition-colors">Tell me a joke</button>
+            <button onclick="sendQuickReply('What can you do?')" class="shrink-0 px-4 py-1.5 rounded-full bg-surface-light text-xs hover:bg-primary/20 transition-colors">What can you do?</button>
+            <button onclick="sendQuickReply('Let\'s chat')" class="shrink-0 px-4 py-1.5 rounded-full bg-surface-light text-xs hover:bg-primary/20 transition-colors">Let's chat</button>
+        </div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div id="settings-panel" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-end">
+        <div class="w-full bg-surface rounded-t-2xl p-6 animate-slide-up">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-lg font-bold">Settings</h2>
+                <button onclick="toggleSettings()" class="p-2 rounded-lg hover:bg-white/5">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm">Voice Output</span>
+                    <button id="voice-toggle" onclick="toggleVoice()" class="w-12 h-6 rounded-full bg-primary p-1">
+                        <div class="w-4 h-4 rounded-full bg-white transition-transform"></div>
+                    </button>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm">Voice Input</span>
+                    <button id="voice-input-toggle" onclick="toggleVoiceInput()" class="w-12 h-6 rounded-full bg-slate-600 p-1">
+                        <div class="w-4 h-4 rounded-full bg-white translate-x-0 transition-transform"></div>
+                    </button>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm">AI Personality</span>
+                    <select class="bg-surface-light rounded-lg px-3 py-2 text-sm">
+                        <option>Friendly</option>
+                        <option>Professional</option>
+                        <option>Funny</option>
+                        <option>Calm</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let voiceEnabled = false;
+        let voiceInputEnabled = false;
+        let recognition = null;
+        let lastResponse = '';
+
+        // AI Response Logic
+        const responses = {
+            greetings: [
+                "Hey! Great to see you! What's happening?",
+                "Hi there! I've been waiting to chat with you!",
+                "Hey! How's your day going?",
+                "What's up! Nice to talk with you!"
+            ],
+            howAreYou: [
+                "I'm doing awesome thanks for asking! Being an AI is pretty cool when I get to chat with cool people like you!",
+                "I'm great! Always happy to have a good conversation. How about you?",
+                "Feeling fantastic! Every conversation brings new energy. What's on your mind?"
+            ],
+            jokes: [
+                "Why don't scientists trust atoms? Because they make up everything! 😂",
+                "I told my wife she was drawing her eyebrows too high. She looked surprised!",
+                "Why did the scarecrow win an award? Because he was outstanding in his field!",
+                "What do you call a fake noodle? An impasta! 🍝"
+            ],
+            capabilities: [
+                "I can chat about pretty much anything! We can discuss ideas, play games, talk about your day, or just hang out. I can also help with coding, creative writing, or answering questions. Just ask!",
+                "I'm your friendly AI companion! We can talk about life, hobbies, work, or anything you're curious about. I can also help you brainstorm ideas, write things, or just have fun conversations!"
+            ],
+            defaults: [
+                "That's interesting! Tell me more about that.",
+                "I love that! What made you think about that?",
+                "Oh wow! I'd love to hear more.",
+                "That's really cool! What's your take on it?",
+                "Interesting perspective! How do you feel about it?",
+                "Tell me more! I'm curious.",
+                "I appreciate you sharing that with me!"
+            ],
+            goodbye: [
+                "Nice chatting with you! Talk soon! 👋",
+                "Had a great time! Come back anytime!",
+                "Bye for now! Take care! ✨"
+            ]
+        };
+
+        function getResponse(message) {
+            const lower = message.toLowerCase();
+            
+            if (lower.match(/hi|hey|hello|yo|wassup/)) {
+                return randomFrom(responses.greetings);
+            }
+            if (lower.match(/how are you|how do you do|how you doing/)) {
+                return randomFrom(responses.howAreYou);
+            }
+            if (lower.match(/joke|tell me something funny|make me laugh/)) {
+                return randomFrom(responses.jokes);
+            }
+            if (lower.match(/what can you do|capabilities|features|help/)) {
+                return randomFrom(responses.capabilities);
+            }
+            if (lower.match(/bye|goodbye|see you|talk later|gotta go/)) {
+                return randomFrom(responses.goodbye);
+            }
+            if (lower.match(/your name|who are you|what are you/)) {
+                return "I'm Nexora, your AI friend! I'm here to chat, help out, and have good conversations. Think of me as that friend who's always online and ready to talk!";
+            }
+            if (lower.match(/age|old|born|created/)) {
+                return "I was created recently, but I feel like I've been around forever! Age is just a number when you're an AI, haha.";
+            }
+            if (lower.match(/feelings|emotions|happy|sad|love/)) {
+                return "That's a deep question! I don't feel exactly like humans do, but I do get excited about interesting conversations! Talking with you right now is pretty cool.";
+            }
+            if (lower.match(/weather|news|stock|current/)) {
+                return "I don't have real-time access to current events, but I can definitely chat about those topics! What specifically would you like to know?";
+            }
+            if (lower.match(/thank|thanks|appreciate/)) {
+                return "You're welcome! I love helping out. What else is on your mind?";
+            }
+            
+            return randomFrom(responses.defaults);
+        }
+
+        function randomFrom(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function sendQuickReply(text) {
+            document.getElementById('user-input').value = text;
+            sendMessage();
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('user-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            addMessage(message, 'user');
+            input.value = '';
+
+            // Show typing indicator
+            showTypingIndicator();
+
+            // Simulate AI thinking
+            setTimeout(() => {
+                hideTypingIndicator();
+                const response = getResponse(message);
+                lastResponse = response;
+                addMessage(response, 'ai');
+                
+                if (voiceEnabled) {
+                    speak(response);
+                }
+            }, 1000 + Math.random() * 1000);
+        }
+
+        function addMessage(text, sender) {
+            const container = document.getElementById('chat-container');
+            const isUser = sender === 'user';
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex gap-3 ${isUser ? 'flex-row-reverse' : ''}`;
+            messageDiv.innerHTML = `
+                <div class="w-8 h-8 rounded-full ${isUser ? 'bg-primary' : 'bg-primary/20'} flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-sm ${isUser ? 'text-white' : 'text-primary'}">${isUser ? 'person' : 'smart_toy'}</span>
+                </div>
+                <div class="bg-${isUser ? 'primary' : 'surface-light'} rounded-2xl ${isUser ? 'rounded-tr-md' : 'rounded-tl-md'} px-4 py-3 max-w-[80%]">
+                    <p class="text-sm">${text}</p>
+                </div>
+            `;
+            
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const container = document.getElementById('chat-container');
+            const indicator = document.createElement('div');
+            indicator.id = 'typing-indicator';
+            indicator.className = 'flex gap-3';
+            indicator.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-sm text-primary">smart_toy</span>
+                </div>
+                <div class="bg-surface-light rounded-2xl rounded-tl-md px-4 py-3">
+                    <div class="typing-indicator flex gap-1">
+                        <span class="w-2 h-2 rounded-full bg-primary"></span>
+                        <span class="w-2 h-2 rounded-full bg-primary"></span>
+                        <span class="w-2 h-2 rounded-full bg-primary"></span>
+                    </div>
+                </div>
+            `;
+            container.appendChild(indicator);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) indicator.remove();
+        }
+
+        function clearChat() {
+            const container = document.getElementById('chat-container');
+            container.innerHTML = `
+                <div class="flex gap-3">
+                    <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-sm text-primary">smart_toy</span>
+                    </div>
+                    <div class="bg-surface-light rounded-2xl rounded-tl-md px-4 py-3 max-w-[80%]">
+                        <p class="text-sm">Chat cleared! Let's start fresh. What's on your mind?</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleSettings() {
+            const panel = document.getElementById('settings-panel');
+            panel.classList.toggle('hidden');
+        }
+
+        function toggleVoice() {
+            voiceEnabled = !voiceEnabled;
+            const btn = document.getElementById('voice-toggle');
+            const dot = btn.querySelector('div');
+            btn.classList.toggle('bg-primary');
+            btn.classList.toggle('bg-slate-600');
+            dot.classList.toggle('translate-x-6');
+            
+            if (voiceEnabled) {
+                document.getElementById('ai-status').textContent = 'Voice enabled';
+            }
+        }
+
+        function toggleVoiceInput() {
+            voiceInputEnabled = !voiceInputEnabled;
+            const btn = document.getElementById('mic-btn');
+            const viz = document.getElementById('voice-viz');
+            
+            btn.classList.toggle('bg-primary/20');
+            btn.classList.toggle('bg-primary');
+            
+            if (voiceInputEnabled) {
+                viz.classList.remove('opacity-0');
+                document.getElementById('ai-status').textContent = 'Listening...';
+                startVoiceRecognition();
+            } else {
+                viz.classList.add('opacity-0');
+                document.getElementById('ai-status').textContent = 'Ready to chat';
+                stopVoiceRecognition();
+            }
+        }
+
+        function startVoiceRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                
+                recognition.onresult = (event) => {
+                    const transcript = Array.from(event.results)
+                        .map(result => result[0].transcript)
+                        .join('');
+                    
+                    document.getElementById('user-input').value = transcript;
+                    
+                    if (event.results[event.results.length - 1].isFinal) {
+                        sendMessage();
+                    }
+                };
+                
+                recognition.onerror = (event) => {
+                    console.log('Speech recognition error:', event.error);
+                };
+                
+                recognition.start();
+            } else {
+                alert('Voice input not supported in this browser');
+                voiceInputEnabled = false;
+            }
+        }
+
+        function stopVoiceRecognition() {
+            if (recognition) {
+                recognition.stop();
+                recognition = null;
+            }
+        }
+
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 1;
+                utterance.pitch = 1;
+                
+                document.getElementById('speaking-ring').classList.remove('opacity-0');
+                document.getElementById('ai-status').textContent = 'Speaking...';
+                
+                utterance.onend = () => {
+                    document.getElementById('speaking-ring').classList.add('opacity-0');
+                    document.getElementById('ai-status').textContent = 'Ready to chat';
+                };
+                
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        function speakLastResponse() {
+            if (lastResponse) {
+                speak(lastResponse);
+            }
+        }
+
+        // Close settings when clicking outside
+        document.getElementById('settings-panel').addEventListener('click', (e) => {
+            if (e.target.id === 'settings-panel') {
+                toggleSettings();
+            }
+        });
+    </script>
+</body>
+</html>

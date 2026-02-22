@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexora Media Library</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#8a2ce2",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#191121",
+                        "surface-dark": "#251b2e",
+                        "border-dark": "#362a42",
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex">
+    <!-- Side Navigation Bar -->
+    <aside class="w-64 border-r border-slate-200 dark:border-border-dark flex flex-col h-screen sticky top-0 bg-background-light dark:bg-background-dark shrink-0">
+        <div class="p-6 flex items-center gap-3">
+            <a href="index.html" class="flex items-center gap-3">
+                <div class="bg-primary rounded-xl p-1.5 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-white text-2xl">grid_view</span>
+                </div>
+                <h1 class="text-xl font-bold tracking-tight">Nexora</h1>
+            </a>
+        </div>
+        
+        <nav class="flex-1 px-4 py-4 space-y-1">
+            <p class="px-2 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Library</p>
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg active-nav group" href="media-library.html">
+                <span class="material-symbols-outlined">folder</span>
+                <span class="font-medium">Assets</span>
+            </a>
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-surface-dark transition-colors group" href="#" onclick="showDownloads()">
+                <span class="material-symbols-outlined">download</span>
+                <span class="font-medium">Downloads</span>
+            </a>
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-surface-dark transition-colors group" href="#" onclick="showRecorded()">
+                <span class="material-symbols-outlined">videocam</span>
+                <span class="font-medium">Recorded</span>
+            </a>
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-surface-dark transition-colors group" href="#" onclick="showStock()">
+                <span class="material-symbols-outlined">star</span>
+                <span class="font-medium">Stock</span>
+            </a>
+            
+            <div class="pt-8 px-2">
+                <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Folders</p>
+                <div class="space-y-1">
+                    <div class="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-surface-dark rounded-lg cursor-pointer" onclick="filterByFolder('all')">
+                        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                        <span>All Media</span>
+                    </div>
+                    <div class="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-surface-dark rounded-lg cursor-pointer" onclick="filterByFolder('videos')">
+                        <span class="w-2 h-2 rounded-full bg-primary"></span>
+                        <span>Videos</span>
+                    </div>
+                    <div class="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-surface-dark rounded-lg cursor-pointer" onclick="filterByFolder('audio')">
+                        <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                        <span>Audio</span>
+                    </div>
+                    <div class="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-surface-dark rounded-lg cursor-pointer" onclick="filterByFolder('images')">
+                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                        <span>Images</span>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        
+        <div class="p-4 border-t border-slate-200 dark:border-border-dark">
+            <div class="bg-primary/10 rounded-xl p-4 border border-primary/20">
+                <p class="text-sm font-semibold text-primary mb-1">Storage used</p>
+                <div class="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full mb-2">
+                    <div class="bg-primary h-1.5 rounded-full" style="width: 75%"></div>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400">1.5 GB of 2 GB used</p>
+                <button class="mt-3 w-full py-2 bg-primary text-white text-xs font-bold rounded-lg hover:brightness-110 transition-all">
+                    UPGRADE PLAN
+                </button>
+            </div>
+        </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden">
+        <!-- Header -->
+        <header class="h-16 border-b border-slate-200 dark:border-border-dark flex items-center justify-between px-8 bg-background-light dark:bg-background-dark/50 backdrop-blur-md z-10 shrink-0">
+            <div class="flex items-center gap-6 flex-1 max-w-2xl">
+                <div class="relative w-full max-w-md">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
+                    <input class="w-full pl-10 pr-4 py-2 bg-slate-100 dark:bg-surface-dark border-none rounded-xl focus:ring-2 focus:ring-primary/50 text-sm transition-all" placeholder="Search assets, folders..." type="text" id="searchInput" oninput="searchMedia()">
+                </div>
+                <div class="h-6 w-px bg-slate-200 dark:bg-border-dark hidden md:block"></div>
+                <div class="flex gap-2 hidden md:flex">
+                    <button class="px-4 py-1.5 rounded-full text-xs font-semibold bg-primary text-white" onclick="filterByType('all')" id="filterAll">All</button>
+                    <button class="px-4 py-1.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-surface-dark text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-border-dark transition-colors" onclick="filterByType('video')" id="filterVideo">Video</button>
+                    <button class="px-4 py-1.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-surface-dark text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-border-dark transition-colors" onclick="filterByType('audio')" id="filterAudio">Audio</button>
+                    <button class="px-4 py-1.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-surface-dark text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-border-dark transition-colors" onclick="filterByType('image')" id="filterImage">Images</button>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="p-2 text-slate-500 hover:text-primary transition-colors" onclick="showNotifications()">
+                    <span class="material-symbols-outlined">notifications</span>
+                </button>
+                <button class="p-2 text-slate-500 hover:text-primary transition-colors" onclick="showSettings()">
+                    <span class="material-symbols-outlined">settings</span>
+                </button>
+                <button class="flex items-center gap-2 bg-primary hover:brightness-110 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-primary/20 transition-all" onclick="uploadMedia()">
+                    <span class="material-symbols-outlined text-xl">cloud_upload</span>
+                    Upload
+                </button>
+                <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-primary/20 cursor-pointer" onclick="showUserMenu()">
+                    <div class="w-full h-full bg-gradient-to-br from-primary to-purple-400 flex items-center justify-center text-white text-sm font-bold">
+                        <span class="material-symbols-outlined">person</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Content Area -->
+        <div class="flex-1 overflow-y-auto p-8">
+            <!-- Folder Header -->
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <div class="flex items-center gap-3">
+                        <h2 class="text-2xl font-bold dark:text-white" id="pageTitle">All Assets</h2>
+                        <span class="text-sm text-slate-500" id="mediaCount">(24 items)</span>
+                    </div>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Manage and organize your media library</p>
+                </div>
+                <div class="flex gap-2">
+                    <button class="p-2 border border-slate-200 dark:border-border-dark rounded-lg dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-surface-dark" onclick="setView('grid')" id="gridViewBtn">
+                        <span class="material-symbols-outlined text-xl">grid_view</span>
+                    </button>
+                    <button class="p-2 border border-slate-200 dark:border-border-dark rounded-lg dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-surface-dark" onclick="setView('list')" id="listViewBtn">
+                        <span class="material-symbols-outlined text-xl">list</span>
+                    </button>
+                    <button class="p-2 border border-slate-200 dark:border-border-dark rounded-lg dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-surface-dark" onclick="sortMedia()">
+                        <span class="material-symbols-outlined text-xl">sort</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Drop Zone (visible when dragging) -->
+            <div id="dropZone" class="drop-zone mb-8 hidden">
+                <span class="material-symbols-outlined text-4xl text-primary mb-2">cloud_upload</span>
+                <p class="font-semibold">Drop files here to upload</p>
+                <p class="text-xs text-slate-500 mt-1">Max file size: 500MB</p>
+            </div>
+
+            <!-- Media Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6" id="mediaGrid">
+                <!-- Media items will be populated by JS -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Upload Modal -->
+    <div id="uploadModal" class="modal-overlay hidden">
+        <div class="bg-surface-dark border border-border-dark rounded-xl w-[90%] max-w-lg animate-slide-up">
+            <div class="flex items-center justify-between p-4 border-b border-border-dark">
+                <h2 class="text-lg font-bold">Upload Media</h2>
+                <button onclick="closeModal('uploadModal')" class="p-2 hover:bg-white/5 rounded-lg">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="drop-zone" id="uploadDropZone">
+                    <span class="material-symbols-outlined text-4xl text-primary mb-2">cloud_upload</span>
+                    <p class="font-semibold">Drag & drop files here</p>
+                    <p class="text-xs text-slate-500 mt-1">or</p>
+                    <button class="btn-primary mt-3" onclick="document.getElementById('fileInput').click()">
+                        Browse Files
+                    </button>
+                    <input type="file" id="fileInput" multiple accept="video/*,audio/*,image/*" class="hidden" onchange="handleFileUpload(event)">
+                </div>
+                <div class="mt-4">
+                    <p class="text-xs text-slate-500">Supported formats: MP4, MOV, AVI, MP3, WAV, JPG, PNG, GIF</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Media Details Modal -->
+    <div id="mediaDetailsModal" class="modal-overlay hidden">
+        <div class="bg-surface-dark border border-border-dark rounded-xl w-[90%] max-w-2xl animate-slide-up">
+            <div class="flex items-center justify-between p-4 border-b border-border-dark">
+                <h2 class="text-lg font-bold" id="detailTitle">Media Details</h2>
+                <button onclick="closeModal('mediaDetailsModal')" class="p-2 hover:bg-white/5 rounded-lg">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="p-4">
+                <div class="flex gap-6">
+                    <div class="w-1/2">
+                        <div class="aspect-video bg-black rounded-lg flex items-center justify-center" id="detailPreview">
+                            <span class="material-symbols-outlined text-6xl text-slate-600">videocam</span>
+                        </div>
+                    </div>
+                    <div class="w-1/2 space-y-4">
+                        <div>
+                            <p class="text-xs text-slate-500 mb-1">File Name</p>
+                            <p class="font-medium" id="detailName">-</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-500 mb-1">Type</p>
+                            <p class="font-medium" id="detailType">-</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-500 mb-1">Size</p>
+                            <p class="font-medium" id="detailSize">-</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-500 mb-1">Duration</p>
+                            <p class="font-medium" id="detailDuration">-</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-500 mb-1">Date Added</p>
+                            <p class="font-medium" id="detailDate">-</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-border-dark flex justify-between">
+                <button class="btn-secondary text-red-500 hover:text-red-400" onclick="deleteMedia()">
+                    <span class="material-symbols-outlined">delete</span>
+                    Delete
+                </button>
+                <div class="flex gap-3">
+                    <button class="btn-secondary" onclick="closeModal('mediaDetailsModal')">Close</button>
+                    <button class="btn-primary" onclick="useInEditor()">
+                        <span class="material-symbols-outlined">edit</span>
+                        Use in Editor
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed bottom-6 right-6 z-50 space-y-3"></div>
+
+    <script src="js/main.js"></script>
+    <script>
+        // Media library data
+        let mediaLibrary = [
+            { id: 1, type: 'video', name: 'Project_V1_Final.mp4', size: '45.2 MB', duration: '4:20', date: '2 hours ago', thumbnail: null },
+            { id: 2, type: 'audio', name: 'Podcast_Intro.wav', size: '12.8 MB', duration: '1:15', date: '5 hours ago', thumbnail: null },
+            { id: 3, type: 'image', name: 'Hero_Banner_01.jpg', size: '2.4 MB', duration: 'IMG', date: 'Yesterday', thumbnail: null },
+            { id: 4, type: 'video', name: 'Interview_Broll.mp4', size: '120.5 MB', duration: '8:45', date: '2 days ago', thumbnail: null },
+            { id: 5, type: 'audio', name: 'Background_Music.mp3', size: '5.1 MB', duration: '3:30', date: '3 days ago', thumbnail: null },
+            { id: 6, type: 'image', name: 'Marketing_Assets.png', size: '4.2 MB', duration: 'IMG', date: '1 week ago', thumbnail: null },
+            { id: 7, type: 'video', name: 'B-Roll_City_Night.mov', size: '412.0 MB', duration: '12:10', date: '2 weeks ago', thumbnail: null },
+            { id: 8, type: 'video', name: 'Product_Demo.mp4', size: '89.3 MB', duration: '3:45', date: '2 weeks ago', thumbnail: null },
+            { id: 9, type: 'audio', name: 'Sound_Effect_Bell.wav', size: '0.5 MB', duration: '0:08', date: '3 weeks ago', thumbnail: null },
+            { id: 10, type: 'image', name: 'Logo_Transparent.png', size: '0.8 MB', duration: 'IMG', date: '1 month ago', thumbnail: null },
+            { id: 11, type: 'video', name: 'Drone_Footage_4K.mp4', size: '1.2 GB', duration: '5:30', date: '1 month ago', thumbnail: null },
+            { id: 12, type: 'audio', name: 'Voiceover_Narrator.wav', size: '28.4 MB', duration: '4:20', date: '1 month ago', thumbnail: null },
+        ];
+
+        let currentFilter = 'all';
+        let currentFolder = 'all';
+        let currentView = 'grid';
+        let selectedMedia = null;
+
+        // Initialize
+        function initMediaLibrary() {
+            renderMedia();
+            setupDragDrop();
+        }
+
+        function renderMedia() {
+            const grid = document.getElementById('mediaGrid');
+            let filtered = [...mediaLibrary];
+
+            // Apply filters
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(m => m.type === currentFilter);
+            }
+
+            if (currentFolder !== 'all') {
+                // Apply folder filter
+            }
+
+            // Search
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            if (searchTerm) {
+                filtered = filtered.filter(m => m.name.toLowerCase().includes(searchTerm));
+            }
+
+            document.getElementById('mediaCount').textContent = `(${filtered.length} items)`;
+
+            if (currentView === 'grid') {
+                grid.innerHTML = filtered.map(media => `
+                    <div class="asset-card group" onclick="viewMediaDetails(${media.id})" data-id="${media.id}">
+                        <div class="relative aspect-video overflow-hidden bg-gradient-to-br ${getMediaGradient(media.type)}">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-4xl text-white/50">${getMediaIcon(media.type)}</span>
+                            </div>
+                            <div class="absolute bottom-2 right-2 bg-black/70 px-2 py-0.5 rounded text-[10px] font-bold text-white backdrop-blur-sm">
+                                ${media.duration}
+                            </div>
+                            <div class="absolute top-2 left-2 px-2 py-0.5 rounded text-[10px] font-bold text-white uppercase tracking-wider ${getMediaBadgeClass(media.type)}">
+                                ${media.type}
+                            </div>
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all"></div>
+                        </div>
+                        <div class="p-4">
+                            <div class="flex justify-between items-start">
+                                <h3 class="font-medium text-sm truncate pr-2">${media.name}</h3>
+                                <button class="text-slate-400 hover:text-primary transition-colors" onclick="event.stopPropagation(); showMediaMenu(${media.id})">
+                                    <span class="material-symbols-outlined text-xl">more_vert</span>
+                                </button>
+                            </div>
+                            <div class="mt-2 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                                <span>${media.size}</span>
+                                <span>${media.date}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                grid.innerHTML = `
+                    <div class="col-span-full">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="text-left text-xs text-slate-500 border-b border-border-dark">
+                                    <th class="pb-3 font-medium">Name</th>
+                                    <th class="pb-3 font-medium">Type</th>
+                                    <th class="pb-3 font-medium">Duration</th>
+                                    <th class="pb-3 font-medium">Size</th>
+                                    <th class="pb-3 font-medium">Date</th>
+                                    <th class="pb-3 font-medium"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${filtered.map(media => `
+                                    <tr class="border-b border-border-dark/50 hover:bg-white/5 cursor-pointer" onclick="viewMediaDetails(${media.id})">
+                                        <td class="py-3 flex items-center gap-3">
+                                            <span class="material-symbols-outlined text-slate-400">${getMediaIcon(media.type)}</span>
+                                            <span class="text-sm">${media.name}</span>
+                                        </td>
+                                        <td class="py-3 text-xs capitalize">${media.type}</td>
+                                        <td class="py-3 text-xs">${media.duration}</td>
+                                        <td class="py-3 text-xs">${media.size}</td>
+                                        <td class="py-3 text-xs text-slate-500">${media.date}</td>
+                                        <td class="py-3">
+                                            <button class="text-slate-400 hover:text-primary" onclick="event.stopPropagation(); showMediaMenu(${media.id})">
+                                                <span class="material-symbols-outlined">more_vert</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+        }
+
+        function getMediaIcon(type) {
+            switch(type) {
+                case 'video': return 'videocam';
+                case 'audio': return 'audio_file';
+                case 'image': return 'image';
+                default: return 'insert_drive_file';
+            }
+        }
+
+        function getMediaGradient(type) {
+            switch(type) {
+                case 'video': return 'from-primary/30 to-purple-900/50';
+                case 'audio': return 'from-green-500/30 to-emerald-900/50';
+                case 'image': return 'from-blue-500/30 to-cyan-900/50';
+                default: return 'from-slate-500/30 to-slate-700/50';
+            }
+        }
+
+        function getMediaBadgeClass(type) {
+            switch(type) {
+                case 'video': return 'bg-primary/90';
+                case 'audio': return 'bg-blue-500/90';
+                case 'image': return 'bg-emerald-500/90';
+                default: return 'bg-slate-500/90';
+            }
+        }
+
+        function filterByType(type) {
+            currentFilter = type;
+            
+            // Update button styles
+            ['All', 'Video', 'Audio', 'Image'].forEach(t => {
+                const btn = document.getElementById('filter' + t);
+                if (t.toLowerCase() === type || (type === 'all' && t === 'All')) {
+                    btn.classList.remove('bg-slate-100', 'dark:bg-surface-dark', 'text-slate-600', 'dark:text-slate-300');
+                    btn.classList.add('bg-primary', 'text-white');
+                } else {
+                    btn.classList.add('bg-slate-100', 'dark:bg-surface-dark', 'text-slate-600', 'dark:text-slate-300');
+                    btn.classList.remove('bg-primary', 'text-white');
+                }
+            });
+
+            renderMedia();
+        }
+
+        function filterByFolder(folder) {
+            currentFolder = folder;
+            const titles = {
+                'all': 'All Assets',
+                'videos': 'Videos',
+                'audio': 'Audio',
+                'images': 'Images'
+            };
+            document.getElementById('pageTitle').textContent = titles[folder] || 'All Assets';
+            renderMedia();
+        }
+
+        function searchMedia() {
+            renderMedia();
+        }
+
+        function setView(view) {
+            currentView = view;
+            document.getElementById('gridViewBtn').classList.toggle('bg-primary', view === 'grid');
+            document.getElementById('gridViewBtn').classList.toggle('text-white', view === 'grid');
+            document.getElementById('listViewBtn').classList.toggle('bg-primary', view === 'list');
+            document.getElementById('listViewBtn').classList.toggle('text-white', view === 'list');
+            renderMedia();
+        }
+
+        function uploadMedia() {
+            document.getElementById('uploadModal').classList.remove('hidden');
+        }
+
+        function handleFileUpload(event) {
+            const files = event.target.files;
+            if (files.length > 0) {
+                showToast(`${files.length} file(s) uploaded successfully!`, 'success');
+                closeModal('uploadModal');
+                
+                // Add to library
+                Array.from(files).forEach(file => {
+                    const type = file.type.startsWith('video') ? 'video' : 
+                                 file.type.startsWith('audio') ? 'audio' : 'image';
+                    mediaLibrary.unshift({
+                        id: Date.now() + Math.random(),
+                        type: type,
+                        name: file.name,
+                        size: formatBytes(file.size),
+                        duration: type === 'image' ? 'IMG' : '0:00',
+                        date: 'Just now',
+                        thumbnail: null
+                    });
+                });
+                renderMedia();
+            }
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        function viewMediaDetails(id) {
+            const media = mediaLibrary.find(m => m.id === id);
+            if (!media) return;
+
+            selectedMedia = media;
+            
+            document.getElementById('detailTitle').textContent = media.name;
+            document.getElementById('detailName').textContent = media.name;
+            document.getElementById('detailType').textContent = media.type.charAt(0).toUpperCase() + media.type.slice(1);
+            document.getElementById('detailSize').textContent = media.size;
+            document.getElementById('detailDuration').textContent = media.duration;
+            document.getElementById('detailDate').textContent = media.date;
+            
+            const preview = document.getElementById('detailPreview');
+            preview.innerHTML = `<span class="material-symbols-outlined text-6xl text-slate-600">${getMediaIcon(media.type)}</span>`;
+            
+            document.getElementById('mediaDetailsModal').classList.remove('hidden');
+        }
+
+        function showMediaMenu(id) {
+            // Simple context menu
+            showToast('Media options', 'success');
+        }
+
+        function deleteMedia() {
+            if (selectedMedia) {
+                mediaLibrary = mediaLibrary.filter(m => m.id !== selectedMedia.id);
+                showToast('Media deleted', 'success');
+                closeModal('mediaDetailsModal');
+                renderMedia();
+            }
+        }
+
+        function useInEditor() {
+            window.location.href = 'editor.html?media=' + encodeURIComponent(selectedMedia.name);
+        }
+
+        function setupDragDrop() {
+            const dropZone = document.getElementById('dropZone');
+            const uploadDropZone = document.getElementById('uploadDropZone');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                document.body.addEventListener(eventName, () => {
+                    dropZone.classList.remove('hidden');
+                });
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                document.body.addEventListener(eventName, () => {
+                    dropZone.classList.add('hidden');
+                });
+            });
+
+            document.body.addEventListener('drop', (e) => {
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    showToast(`${files.length} file(s) dropped!`, 'success');
+                }
+            });
+        }
+
+        // Initialize on load
+        window.onload = initMediaLibrary;
+    </script>
+</body>
+</html>

@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexora Video Editor - Professional Workspace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#8a2ce2",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#191121",
+                        "panel-dark": "#231a2e",
+                        "border-dark": "#312938",
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background-dark font-display text-slate-100 overflow-hidden h-screen flex flex-col">
+    <!-- Top Navigation Bar -->
+    <header class="flex items-center justify-between px-4 py-2 bg-background-dark border-b border-border-dark z-50 shrink-0">
+        <div class="flex items-center gap-6">
+            <div class="flex items-center gap-2">
+                <a href="index.html" class="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors">
+                    <span class="material-symbols-outlined text-2xl font-bold">arrow_back</span>
+                </a>
+                <span class="material-symbols-outlined text-2xl font-bold">movie_filter</span>
+                <h1 class="text-slate-100 text-lg font-bold tracking-tight">Nexora <span class="text-primary/80 font-normal">Pro</span></h1>
+            </div>
+            <div class="h-5 w-px bg-border-dark"></div>
+            <div class="flex items-center gap-2">
+                <span class="text-xs text-slate-400">Project:</span>
+                <span class="text-xs font-medium" id="projectName">Untitled Project</span>
+                <button class="text-slate-400 hover:text-white" onclick="saveProject()">
+                    <span class="material-symbols-outlined text-sm">save</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-3">
+            <div class="flex bg-panel-dark rounded-lg p-0.5 border border-border-dark">
+                <button class="px-3 py-1 text-xs font-medium bg-primary text-white rounded" onclick="setEditorMode('edit')" id="modeEdit">Editing</button>
+                <button class="px-3 py-1 text-xs font-medium text-slate-400 hover:text-white transition-colors" onclick="setEditorMode('color')" id="modeColor">Color</button>
+                <button class="px-3 py-1 text-xs font-medium text-slate-400 hover:text-white transition-colors" onclick="setEditorMode('audio')" id="modeAudio">Audio</button>
+            </div>
+            <button class="flex items-center gap-2 px-4 py-1.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-bold transition-all shadow-lg shadow-primary/20" onclick="exportVideo()">
+                <span class="material-symbols-outlined text-sm">ios_share</span>
+                Export
+            </button>
+            <div class="size-8 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30 ml-2 cursor-pointer" onclick="showUserMenu()">
+                <span class="material-symbols-outlined text-primary text-xl">account_circle</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex flex-1 overflow-hidden">
+        <!-- Left Sidebar: Tools -->
+        <aside class="w-16 flex flex-col items-center py-4 gap-2 border-r border-border-dark bg-background-dark/50 shrink-0">
+            <button class="p-2.5 rounded-lg bg-primary text-white shadow-lg shadow-primary/20 tooltip" data-tooltip="Selection (V)" onclick="selectTool('select')" id="toolSelect">
+                <span class="material-symbols-outlined">near_me</span>
+            </button>
+            <button class="p-2.5 rounded-lg text-slate-400 hover:bg-white/5 hover:text-white transition-colors tooltip" data-tooltip="Blade (B)" onclick="selectTool('blade')" id="toolBlade">
+                <span class="material-symbols-outlined">content_cut</span>
+            </button>
+            <button class="p-2.5 rounded-lg text-slate-400 hover:bg-white/5 hover:text-white transition-colors tooltip" data-tooltip="Text (T)" onclick="selectTool('text')" id="toolText">
+                <span class="material-symbols-outlined">text_fields</span>
+            </button>
+            <button class="p-2.5 rounded-lg text-slate-400 hover:bg-white/5 hover:text-white transition-colors tooltip" data-tooltip="Hand (H)" onclick="selectTool('hand')" id="toolHand">
+                <span class="material-symbols-outlined">pan_tool</span>
+            </button>
+            <button class="p-2.5 rounded-lg text-slate-400 hover:bg-white/5 hover:text-white transition-colors tooltip" data-tooltip="Zoom (Z)" onclick="selectTool('zoom')" id="toolZoom">
+                <span class="material-symbols-outlined">search</span>
+            </button>
+            <div class="w-8 h-px bg-border-dark my-1"></div>
+            <button class="p-2.5 rounded-lg text-slate-400 hover:bg-white/5 hover:text-white transition-colors tooltip" data-tooltip="Transitions" onclick="showPanel('transitions')">
+                <span class="material-symbols-outlined">auto_fix_high</span>
+            </button>
+            <button class="p-2.5 rounded-lg text-slate-400 hover:bg-white/5 hover:text-white transition-colors tooltip" data-tooltip="Media Library" onclick="openMediaLibrary()">
+                <span class="material-symbols-outlined">folder_open</span>
+            </button>
+            <button class="p-2.5 rounded-lg text-slate-400 hover:bg-white/5 hover:text-white transition-colors tooltip" data-tooltip="Keyframes" onclick="showPanel('keyframes')">
+                <span class="material-symbols-outlined">keyframes</span>
+            </button>
+        </aside>
+
+        <!-- Center Area: Preview and Timeline -->
+        <section class="flex-1 flex flex-col bg-[#0c0910] overflow-hidden">
+            <!-- Preview Pane -->
+            <div class="flex-1 flex flex-col p-4 min-h-0">
+                <div class="flex-1 bg-black rounded-xl border border-border-dark shadow-2xl relative overflow-hidden group flex items-center justify-center">
+                    <!-- Canvas/Preview Area -->
+                    <canvas id="previewCanvas" class="w-full h-full object-contain"></canvas>
+                    
+                    <!-- Placeholder when no content -->
+                    <div id="previewPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center">
+                        <span class="material-symbols-outlined text-6xl text-slate-600 mb-4">movie_filter</span>
+                        <p class="text-slate-500 mb-2">No media added yet</p>
+                        <button class="btn-primary" onclick="openMediaLibrary()">
+                            <span class="material-symbols-outlined">add</span>
+                            Add Media
+                        </button>
+                    </div>
+
+                    <!-- Viewport Overlays -->
+                    <div class="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded border border-white/10 text-[10px] text-slate-300 uppercase tracking-widest flex items-center gap-2">
+                        <span class="material-symbols-outlined text-xs">aspect_ratio</span>
+                        <span id="previewResolution">1920 x 1080</span>
+                    </div>
+                    <div class="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded border border-white/10 text-[10px] text-slate-300 uppercase tracking-widest flex items-center gap-2">
+                        <span class="material-symbols-outlined text-xs">speed</span>
+                        <span id="previewFps">24 FPS</span>
+                    </div>
+                    
+                    <!-- Video Controls Overlay -->
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 pointer-events-none" id="previewOverlay">
+                        <button class="size-16 rounded-full bg-primary/90 text-white flex items-center justify-center shadow-2xl scale-95 hover:scale-100 transition-transform pointer-events-auto" onclick="togglePlay()">
+                            <span class="material-symbols-outlined text-4xl fill-icon" id="playIcon">play_arrow</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Playback Controls Bar -->
+                <div class="mt-3 flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="text-2xl font-mono font-bold text-primary tracking-tighter" id="timecode">00:00:00:00</div>
+                            <div class="flex items-center gap-1 bg-panel-dark px-3 py-1.5 rounded-lg border border-border-dark">
+                                <button class="text-slate-400 hover:text-white transition-colors" onclick="skipToStart()">
+                                    <span class="material-symbols-outlined text-xl">skip_previous</span>
+                                </button>
+                                <button class="text-slate-400 hover:text-white transition-colors" onclick="stepBackward()">
+                                    <span class="material-symbols-outlined text-xl">fast_rewind</span>
+                                </button>
+                                <button class="size-9 flex items-center justify-center text-white bg-white/10 rounded-full mx-1 hover:bg-primary transition-colors" onclick="togglePlay()" id="playButton">
+                                    <span class="material-symbols-outlined text-2xl fill-icon" id="playBtnIcon">play_arrow</span>
+                                </button>
+                                <button class="text-slate-400 hover:text-white transition-colors" onclick="stepForward()">
+                                    <span class="material-symbols-outlined text-xl">fast_forward</span>
+                                </button>
+                                <button class="text-slate-400 hover:text-white transition-colors" onclick="skipToEnd()">
+                                    <span class="material-symbols-outlined text-xl">skip_next</span>
+                                </button>
+                            </div>
+                            <button class="text-slate-400 hover:text-white transition-colors" onclick="toggleLoop()">
+                                <span class="material-symbols-outlined text-xl" id="loopIcon">loop</span>
+                            </button>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-slate-400 text-sm">volume_up</span>
+                                <input type="range" class="w-24 accent-primary" min="0" max="100" value="70" id="volumeSlider" onchange="setVolume(this.value)">
+                            </div>
+                            <button class="text-slate-400 hover:text-white transition-colors" onclick="toggleFullscreen()">
+                                <span class="material-symbols-outlined">fullscreen</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Pane -->
+            <div class="h-72 border-t border-border-dark bg-panel-dark flex flex-col shrink-0">
+                <div class="flex items-center justify-between px-4 py-2 border-b border-border-dark bg-background-dark/30">
+                    <div class="flex items-center gap-4">
+                        <button class="flex items-center gap-1 text-xs font-bold text-slate-300 hover:text-primary transition-colors">
+                            <span class="material-symbols-outlined text-sm">history</span>
+                            Timeline
+                        </button>
+                        <button class="text-xs text-slate-500 hover:text-white" onclick="addTrack()">
+                            <span class="material-symbols-outlined text-sm">add</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-slate-400 text-xs cursor-pointer" onclick="zoomTimelineOut()">zoom_out</span>
+                            <input class="w-28 accent-primary h-1 bg-border-dark rounded-full appearance-none" type="range" min="10" max="200" value="50" id="timelineZoom" onchange="setTimelineZoom(this.value)">
+                            <span class="material-symbols-outlined text-slate-400 text-xs cursor-pointer" onclick="zoomTimelineIn()">zoom_in</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button class="text-slate-400 hover:text-white p-1" title="Snap to Grid">
+                                <span class="material-symbols-outlined text-lg">grid_4x4</span>
+                            </button>
+                            <button class="text-slate-400 hover:text-white p-1" title="Magnetic Timeline">
+                                <span class="material-symbols-outlined text-lg">magnet_on</span>
+                            </button>
+                        </div>
+                        <button class="text-slate-400 hover:text-white" onclick="showTimelineSettings()">
+                            <span class="material-symbols-outlined text-lg">settings</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Timeline Content -->
+                <div class="flex-1 overflow-auto custom-scrollbar relative" id="timelineContainer">
+                    <!-- Time Ruler -->
+                    <div class="h-6 flex border-b border-border-dark bg-background-dark/20 sticky top-0 z-20" id="timeRuler">
+                        <!-- Generated by JS -->
+                    </div>
+
+                    <!-- Tracks Container -->
+                    <div class="flex flex-col" id="tracksContainer">
+                        <!-- Video Track 2 (Overlay) -->
+                        <div class="track group" data-track-type="video" data-track-index="1">
+                            <div class="track-header">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-xs text-slate-500">layers</span>
+                                    <span class="text-[10px] font-bold text-slate-400">V2 Overlay</span>
+                                </div>
+                                <button class="text-slate-600 hover:text-slate-400" onclick="toggleTrackVisibility(this)">
+                                    <span class="material-symbols-outlined text-xs">visibility</span>
+                                </button>
+                            </div>
+                            <div class="track-content" id="trackV2">
+                                <!-- Clips will be added here -->
+                            </div>
+                        </div>
+
+                        <!-- Video Track 1 (Main) -->
+                        <div class="track group" data-track-type="video" data-track-index="0">
+                            <div class="track-header">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-xs text-slate-500">videocam</span>
+                                    <span class="text-[10px] font-bold text-slate-400">V1 Main</span>
+                                </div>
+                                <button class="text-slate-600 hover:text-slate-400" onclick="toggleTrackVisibility(this)">
+                                    <span class="material-symbols-outlined text-xs">visibility</span>
+                                </button>
+                            </div>
+                            <div class="track-content" id="trackV1">
+                                <!-- Clips will be added here -->
+                            </div>
+                        </div>
+
+                        <!-- Audio Track 1 -->
+                        <div class="track group" data-track-type="audio" data-track-index="0">
+                            <div class="track-header">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-xs text-slate-500">volume_up</span>
+                                    <span class="text-[10px] font-bold text-slate-400">A1 Audio</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <button class="text-[8px] text-slate-500 hover:text-white" title="Mute" onclick="toggleTrackMute(this)">M</button>
+                                    <button class="text-[8px] text-slate-500 hover:text-white" title="Solo" onclick="toggleTrackSolo(this)">S</button>
+                                </div>
+                            </div>
+                            <div class="track-content" id="trackA1">
+                                <!-- Audio clips -->
+                            </div>
+                        </div>
+
+                        <!-- Audio Track 2 (Music) -->
+                        <div class="track group" data-track-type="audio" data-track-index="1">
+                            <div class="track-header">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-xs text-slate-500">music_note</span>
+                                    <span class="text-[10px] font-bold text-slate-400">A2 Music</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <button class="text-[8px] text-slate-500 hover:text-white" title="Mute" onclick="toggleTrackMute(this)">M</button>
+                                    <button class="text-[8px] text-slate-500 hover:text-white" title="Solo" onclick="toggleTrackSolo(this)">S</button>
+                                </div>
+                            </div>
+                            <div class="track-content" id="trackA2">
+                                <!-- Music clips -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Playhead -->
+                    <div class="playhead" id="playhead" style="left: 120px;">
+                        <div class="absolute top-0 -left-[5px] w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[10px] border-t-primary"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Sidebar: Inspector -->
+        <aside class="w-80 flex flex-col border-l border-border-dark bg-background-dark/95 shrink-0">
+            <!-- Tabs -->
+            <div class="flex border-b border-border-dark">
+                <button class="flex-1 py-3 text-xs font-bold text-white border-b-2 border-primary bg-white/5" onclick="showRightTab('properties')" id="tabProperties">Properties</button>
+                <button class="flex-1 py-3 text-xs font-bold text-slate-500 hover:text-slate-300 transition-colors" onclick="showRightTab('effects')" id="tabEffects">Effects</button>
+                <button class="flex-1 py-3 text-xs font-bold text-slate-500 hover:text-slate-300 transition-colors" onclick="showRightTab('keyframes')" id="tabKeyframes">Keyframes</button>
+            </div>
+
+            <!-- Properties Panel -->
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4" id="panelProperties">
+                <!-- Transform Section -->
+                <div class="panel p-4">
+                    <div class="flex items-center justify-between mb-4 cursor-pointer" onclick="toggleSection('transform')">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Transform</h3>
+                        <span class="material-symbols-outlined text-slate-500 text-sm">expand_more</span>
+                    </div>
+                    <div class="space-y-4" id="sectionTransform">
+                        <div>
+                            <div class="flex justify-between text-[11px] text-slate-300 mb-2">
+                                <span>Scale</span>
+                                <span class="font-mono text-primary" id="scaleValue">100.0%</span>
+                            </div>
+                            <input type="range" min="0" max="200" value="100" class="w-full" onchange="updateTransform('scale', this.value)" oninput="updateTransform('scale', this.value)">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-[11px] text-slate-300 mb-2">
+                                <span>Rotation</span>
+                                <span class="font-mono text-primary" id="rotationValue">0.0°</span>
+                            </div>
+                            <input type="range" min="-180" max="180" value="0" class="w-full" onchange="updateTransform('rotation', this.value)" oninput="updateTransform('rotation', this.value)">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-[11px] text-slate-300 mb-2">
+                                <span>Opacity</span>
+                                <span class="font-mono text-primary" id="opacityValue">100.0%</span>
+                            </div>
+                            <input type="range" min="0" max="100" value="100" class="w-full" onchange="updateTransform('opacity', this.value)" oninput="updateTransform('opacity', this.value)">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <span class="text-[10px] text-slate-500 mb-1 block">Position X</span>
+                                <input type="number" class="input-field text-xs" value="0" onchange="updateTransform('x', this.value)">
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-slate-500 mb-1 block">Position Y</span>
+                                <input type="number" class="input-field text-xs" value="0" onchange="updateTransform('y', this.value)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Color Correction Section -->
+                <div class="panel p-4">
+                    <div class="flex items-center justify-between mb-4 cursor-pointer" onclick="toggleSection('color')">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Color Correction</h3>
+                        <span class="material-symbols-outlined text-slate-500 text-sm">expand_more</span>
+                    </div>
+                    <div class="space-y-4" id="sectionColor">
+                        <div class="grid grid-cols-3 gap-2">
+                            <button class="bg-panel-dark hover:bg-white/5 border border-border-dark rounded py-2 text-[10px] font-bold transition-colors" onclick="selectColorWheel('lift')">Lift</button>
+                            <button class="bg-primary/20 hover:bg-primary/30 border border-primary/40 rounded py-2 text-[10px] font-bold transition-colors text-white" onclick="selectColorWheel('gamma')">Gamma</button>
+                            <button class="bg-panel-dark hover:bg-white/5 border border-border-dark rounded py-2 text-[10px] font-bold transition-colors" onclick="selectColorWheel('gain')">Gain</button>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-[11px] text-slate-300 mb-2">
+                                <span>Temperature</span>
+                                <span class="font-mono text-primary" id="tempValue">0</span>
+                            </div>
+                            <input type="range" min="-100" max="100" value="0" class="w-full" onchange="updateColor('temperature', this.value)">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-[11px] text-slate-300 mb-2">
+                                <span>Tint</span>
+                                <span class="font-mono text-primary" id="tintValue">0</span>
+                            </div>
+                            <input type="range" min="-100" max="100" value="0" class="w-full" onchange="updateColor('tint', this.value)">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-[11px] text-slate-300 mb-2">
+                                <span>Saturation</span>
+                                <span class="font-mono text-primary" id="satValue">100%</span>
+                            </div>
+                            <input type="range" min="0" max="200" value="100" class="w-full" onchange="updateColor('saturation', this.value)">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-[11px] text-slate-300 mb-2">
+                                <span>Contrast</span>
+                                <span class="font-mono text-primary" id="contrastValue">0</span>
+                            </div>
+                            <input type="range" min="-100" max="100" value="0" class="w-full" onchange="updateColor('contrast', this.value)">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-[11px] text-slate-300 mb-2">
+                                <span>Exposure</span>
+                                <span class="font-mono text-primary" id="exposureValue">0</span>
+                            </div>
+                            <input type="range" min="-200" max="200" value="0" class="w-full" onchange="updateColor('exposure', this.value)">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters Section -->
+                <div class="panel p-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Applied Filters</h3>
+                        <button class="text-primary hover:text-white transition-colors" onclick="showFiltersPanel()">
+                            <span class="material-symbols-outlined text-sm">add_circle</span>
+                        </button>
+                    </div>
+                    <div class="space-y-2" id="appliedFilters">
+                        <p class="text-xs text-slate-500 text-center py-4">No filters applied</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Effects Panel -->
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4 hidden" id="panelEffects">
+                <div class="panel p-4">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Video Effects</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button class="p-3 bg-panel-dark hover:bg-primary/20 border border-border-dark rounded-lg text-center transition-colors" onclick="applyEffect('blur')">
+                            <span class="material-symbols-outlined text-xl text-slate-400">blur_on</span>
+                            <span class="text-[10px] block mt-1">Blur</span>
+                        </button>
+                        <button class="p-3 bg-panel-dark hover:bg-primary/20 border border-border-dark rounded-lg text-center transition-colors" onclick="applyEffect('sharpen')">
+                            <span class="material-symbols-outlined text-xl text-slate-400">deblur</span>
+                            <span class="text-[10px] block mt-1">Sharpen</span>
+                        </button>
+                        <button class="p-3 bg-panel-dark hover:bg-primary/20 border border-border-dark rounded-lg text-center transition-colors" onclick="applyEffect('glow')">
+                            <span class="material-symbols-outlined text-xl text-slate-400">auto_awesome</span>
+                            <span class="text-[10px] block mt-1">Glow</span>
+                        </button>
+                        <button class="p-3 bg-panel-dark hover:bg-primary/20 border border-border-dark rounded-lg text-center transition-colors" onclick="applyEffect('vignette')">
+                            <span class="material-symbols-outlined text-xl text-slate-400">vignette</span>
+                            <span class="text-[10px] block mt-1">Vignette</span>
+                        </button>
+                        <button class="p-3 bg-panel-dark hover:bg-primary/20 border border-border-dark rounded-lg text-center transition-colors" onclick="applyEffect('noise')">
+                            <span class="material-symbols-outlined text-xl text-slate-400">grain</span>
+                            <span class="text-[10px] block mt-1">Noise</span>
+                        </button>
+                        <button class="p-3 bg-panel-dark hover:bg-primary/20 border border-border-dark rounded-lg text-center transition-colors" onclick="applyEffect('distort')">
+                            <span class="material-symbols-outlined text-xl text-slate-400">auto_fix_high</span>
+                            <span class="text-[10px] block mt-1">Distort</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="panel p-4">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Transitions</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button class="p-3 bg-panel-dark hover:bg-primary/20 border border-border-dark rounded-lg text-center transition-colors" onclick="applyTransition('fade')">
+                            <span class="material-symbols-outlined text-xl text-slate-400">gradient</span>
+                            <span class="text-[10px] block mt-1">Fade</span>
+                        </button>
+                        <button class="p-3 bg-panel-dark hover:bg-primary/20 border border-border-dark rounded-lg text-center transition-colors" onclick="applyTransition('dissolve')">
+                            <span class="material-symbols-outlined text-xl text-slate-400">blur_on</span>
+                            <span class="text-[10px] block mt-1">Dissolve</span>
+                        </button>
+                        <button class="p-3 bg-panel-dark hover:bg-primary/20 border border-border-dark rounded-lg text-center transition-colors" onclick="applyTransition('wipe')">
+                            <span class="material-symbols-outlined text-xl text-slate-400">swipe</span>
+                            <span class="text-[10px] block mt-1">Wipe</span>
+                        </button>
+                        <button class="p-3 bg-panel-dark hover:bg-primary/20 border border-border-dark rounded-lg text-center transition-colors" onclick="applyTransition('slide')">
+                            <span class="material-symbols-outlined text-xl text-slate-400">arrow_forward</span>
+                            <span class="text-[10px] block mt-1">Slide</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Keyframes Panel -->
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-4 hidden" id="panelKeyframes">
+                <div class="panel p-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Keyframes</h3>
+                        <button class="text-primary hover:text-white" onclick="addKeyframe()">
+                            <span class="material-symbols-outlined text-sm">add</span>
+                        </button>
+                    </div>
+                    <div class="space-y-2" id="keyframesList">
+                        <p class="text-xs text-slate-500 text-center py-4">No keyframes added</p>
+                    </div>
+                </div>
+
+                <div class="panel p-4 mt-4">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Animation Presets</h3>
+                    <div class="space-y-2">
+                        <button class="w-full p-3 bg-panel-dark hover:bg-primary/20 border border-border-dark rounded-lg text-left transition-colors flex items-center gap-3" onclick="applyPreset('fadeIn')">
+                            <span class="material-symbols-outlined text-slate-400">fade</span>
+                            <span class="text-xs">Fade In</span>
+                        </button>
+                        <button class="w-full p-3 bg-panel-dark hover:bg-primary/20 border border-border-dark rounded-lg text-left transition-colors flex items-center gap-3" onclick="applyPreset('fadeOut')">
+                            <span class="material-symbols-outlined text-slate-400">fade</span>
+                            <span class="text-xs">Fade Out</span>
+                        </button>
+                        <button class="w-full p-3 bg-panel-dark hover:bg-primary/20 border border-border-dark rounded-lg text-left transition-colors flex items-center gap-3" onclick="applyPreset('slideIn')">
+                            <span class="material-symbols-outlined text-slate-400">slide</span>
+                            <span class="text-xs">Slide In</span>
+                        </button>
+                        <button class="w-full p-3 bg-panel-dark hover:bg-primary/20 border border-border-dark rounded-lg text-left transition-colors flex items-center gap-3" onclick="applyPreset('bounce')">
+                            <span class="material-symbols-outlined text-slate-400">moving</span>
+                            <span class="text-xs">Bounce</span>
+                        </button>
+                        <button class="w-full p-3 bg-panel-dark hover:bg-primary/20 border border-border-dark rounded-lg text-left transition-colors flex items-center gap-3" onclick="applyPreset('pulse')">
+                            <span class="material-symbols-outlined text-slate-400">favorite</span>
+                            <span class="text-xs">Pulse</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VU Meters -->
+            <div class="h-28 bg-background-dark/50 border-t border-border-dark p-3 flex gap-4 shrink-0">
+                <div class="flex-1 flex flex-col gap-1">
+                    <span class="text-[9px] text-slate-500 font-bold">L</span>
+                    <div class="flex-1 w-full bg-border-dark rounded-sm overflow-hidden flex flex-col-reverse">
+                        <div class="h-[65%] w-full bg-gradient-to-t from-green-500 via-yellow-400 to-red-500 transition-all" id="vuLeft"></div>
+                    </div>
+                </div>
+                <div class="flex-1 flex flex-col gap-1">
+                    <span class="text-[9px] text-slate-500 font-bold">R</span>
+                    <div class="flex-1 w-full bg-border-dark rounded-sm overflow-hidden flex flex-col-reverse">
+                        <div class="h-[60%] w-full bg-gradient-to-t from-green-500 via-yellow-400 to-red-500 transition-all" id="vuRight"></div>
+                    </div>
+                </div>
+                id="vuRight <div class="flex flex-col justify-between py-2 text-[8px] font-mono text-slate-600">
+                    <span>0dB</span>
+                    <span>-6dB</span>
+                    <span>-12dB</span>
+                    <span>-18dB</span>
+                    <span>-24dB</span>
+                    <span>-∞</span>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Footer Status Bar -->
+    <footer class="h-6 border-t border-border-dark bg-background-dark px-4 flex items-center justify-between text-[10px] text-slate-500 font-medium shrink-0">
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-1.5">
+                <div class="size-1.5 rounded-full bg-emerald-500"></div>
+                System Ready
+            </div>
+            <div class="flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-xs">hard_drive</span>
+                2.4TB Free
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <span>Dropped Frames: <span class="text-emerald-500">0</span></span>
+            <div class="flex items-center gap-1 text-primary">
+                <span class="material-symbols-outlined text-xs">memory</span>
+                GPU Accel Active
+            </div>
+            <span id="projectDuration">00:00:00</span>
+        </div>
+    </footer>
+
+    <!-- Media Library Modal -->
+    <div id="mediaLibraryModal" class="modal-overlay hidden">
+        <div class="bg-surface-dark border border-border-dark rounded-xl w-[90%] max-w-4xl max-h-[80vh] flex flex-col animate-slide-up">
+            <div class="flex items-center justify-between p-4 border-b border-border-dark">
+                <h2 class="text-lg font-bold">Media Library</h2>
+                <button onclick="closeModal('mediaLibraryModal')" class="p-2 hover:bg-white/5 rounded-lg">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="p-4 border-b border-border-dark">
+                <div class="flex gap-2">
+                    <div class="flex-1 relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+                        <input type="text" class="input-field pl-10" placeholder="Search media..." id="mediaSearch">
+                    </div>
+                    <button class="btn-secondary" onclick="uploadMedia()">
+                        <span class="material-symbols-outlined">cloud_upload</span>
+                        Upload
+                    </button>
+                </div>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4">
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4" id="mediaGrid">
+                    <!-- Media items will be loaded here -->
+                </div>
+            </div>
+            <div class="p-4 border-t border-border-dark flex justify-end gap-3">
+                <button class="btn-secondary" onclick="closeModal('mediaLibraryModal')">Cancel</button>
+                <button class="btn-primary" onclick="addSelectedMedia()">Add to Timeline</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div id="exportModal" class="modal-overlay hidden">
+        <div class="bg-surface-dark border border-border-dark rounded-xl w-[90%] max-w-lg animate-slide-up">
+            <div class="flex items-center justify-between p-4 border-b border-border-dark">
+                <h2 class="text-lg font-bold">Export Video</h2>
+                <button onclick="closeModal('exportModal')" class="p-2 hover:bg-white/5 rounded-lg">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Format</label>
+                    <select class="input-field" id="exportFormat">
+                        <option value="mp4">MP4 (H.264)</option>
+                        <option value="webm">WebM (VP9)</option>
+                        <option value="mov">MOV (ProRes)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Resolution</label>
+                    <select class="input-field" id="exportResolution">
+                        <option value="1920x1080">1920 x 1080 (1080p)</option>
+                        <option value="3840x2160">3840 x 2160 (4K)</option>
+                        <option value="1280x720">1280 x 720 (720p)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Frame Rate</label>
+                    <select class="input-field" id="exportFps">
+                        <option value="24">24 FPS</option>
+                        <option value="30">30 FPS</option>
+                        <option value="60">60 FPS</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Quality</label>
+                    <select class="input-field" id="exportQuality">
+                        <option value="high">High (High bitrate)</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low (Small file)</option>
+                    </select>
+                </div>
+                <div class="pt-4">
+                    <button class="btn-primary w-full py-3" onclick="startExport()">
+                        <span class="material-symbols-outlined">file_download</span>
+                        Export Video
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed bottom-6 right-6 z-50 space-y-3"></div>
+
+    <script src="js/main.js"></script>
+    <script>
+        // Editor specific initialization
+        let currentProject = {
+            name: 'Untitled Project',
+            resolution: '1920x1080',
+            fps: 24,
+            duration: 0,
+            tracks: [],
+            clips: []
+        };
+
+        let isPlaying = false;
+        let currentTime = 0;
+        let timelineZoom = 50;
+        let selectedTool = 'select';
+        let selectedClip = null;
+
+        // Initialize editor
+        function initEditor() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const projectName = urlParams.get('project');
+            
+            if (projectName) {
+                currentProject.name = projectName;
+                document.getElementById('projectName').textContent = projectName;
+            }
+
+            document.getElementById('previewResolution').textContent = currentProject.resolution;
+            document.getElementById('previewFps').textContent = currentProject.fps + ' FPS';
+            
+            // Load sample clips for demo
+            loadSampleClips();
+            
+            // Initialize timeline ruler
+            updateTimeRuler();
+            
+            // Update timecode display
+            updateTimecode();
+        }
+
+        function loadSampleClips() {
+            // Add sample video clip to V1
+            const trackV1 = document.getElementById('trackV1');
+            const clip1 = document.createElement('div');
+            clip1.className = 'clip bg-primary/40 border-2 border-primary rounded-sm cursor-pointer';
+            clip1.style.left = '0%';
+            clip1.style.width = '30%';
+            clip1.innerHTML = `
+                <div class="h-full flex items-center px-2 overflow-hidden">
+                    <span class="text-[10px] font-medium text-white truncate">Sample_Video.mp4</span>
+                </div>
+            `;
+            clip1.onclick = (e) => selectClip(e, clip1);
+            trackV1.appendChild(clip1);
+
+            // Add second clip
+            const clip2 = document.createElement('div');
+            clip2.className = 'clip bg-purple-500/40 border border-purple-400 rounded-sm cursor-pointer';
+            clip2.style.left = '30%';
+            clip2.style.width = '40%';
+            clip2.innerHTML = `
+                <div class="h-full flex items-center px-2 overflow-hidden">
+                    <span class="text-[10px] font-medium text-white truncate">B-Roll_Clip.mp4</span>
+                </div>
+            `;
+            clip2.onclick = (e) => selectClip(e, clip2);
+            trackV1.appendChild(clip2);
+
+            // Add sample audio
+            const trackA1 = document.getElementById('trackA1');
+            const audioClip = document.createElement('div');
+            audioClip.className = 'clip bg-emerald-500/30 border border-emerald-500/50 rounded-sm cursor-pointer';
+            audioClip.style.left = '0%';
+            audioClip.style.width = '70%';
+            audioClip.innerHTML = `
+                <div class="h-full flex items-center px-2 overflow-hidden">
+                    <span class="text-[10px] font-medium text-emerald-400 truncate">Background_Music.mp3</span>
+                </div>
+            `;
+            audioClip.onclick = (e) => selectClip(e, audioClip);
+            trackA1.appendChild(audioClip);
+        }
+
+        function selectClip(e, element) {
+            e.stopPropagation();
+            document.querySelectorAll('.clip').forEach(c => c.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedClip = element;
+        }
+
+        function togglePlay() {
+            isPlaying = !isPlaying;
+            document.getElementById('playIcon').textContent = isPlaying ? 'pause' : 'play_arrow';
+            document.getElementById('playBtnIcon').textContent = isPlaying ? 'pause' : 'play_arrow';
+            
+            if (isPlaying) {
+                playTimeline();
+            }
+        }
+
+        function playTimeline() {
+            if (!isPlaying) return;
+            
+            currentTime += 1/30;
+            updateTimecode();
+            updatePlayhead();
+            
+            requestAnimationFrame(playTimeline);
+        }
+
+        function updateTimecode() {
+            const totalFrames = Math.floor(currentTime * currentProject.fps);
+            const frames = totalFrames % currentProject.fps;
+            const seconds = Math.floor(totalFrames / currentProject.fps) % 60;
+            const minutes = Math.floor(totalFrames / (currentProject.fps * 60)) % 60;
+            const hours = Math.floor(totalFrames / (currentProject.fps * 3600));
+            
+            document.getElementById('timecode').textContent = 
+                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}:${String(frames).padStart(2, '0')}`;
+        }
+
+        function updatePlayhead() {
+            const playhead = document.getElementById('playhead');
+            const timelineContainer = document.getElementById('timelineContainer');
+            const containerWidth = timelineContainer.offsetWidth - 120;
+            
+            const position = (currentTime / 120) * 100; // Assuming 2 min timeline
+            playhead.style.left = `calc(120px + ${Math.min(position, 100)}% - 1px)`;
+        }
+
+        function updateTimeRuler() {
+            const ruler = document.getElementById('timeRuler');
+            ruler.innerHTML = '';
+            
+            const duration = 120; // seconds
+            const interval = timelineZoom > 100 ? 1 : timelineZoom > 50 ? 5 : 10;
+            
+            for (let i = 0; i <= duration; i += interval) {
+                const marker = document.createElement('div');
+                marker.className = 'timeline-marker';
+                marker.style.left = `${(i / duration) * 100}%`;
+                marker.textContent = formatTime(i);
+                ruler.appendChild(marker);
+            }
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function setTimelineZoom(value) {
+            timelineZoom = value;
+            updateTimeRuler();
+        }
+
+        function zoomTimelineIn() {
+            const slider = document.getElementById('timelineZoom');
+            slider.value = Math.min(200, parseInt(slider.value) + 20);
+            setTimelineZoom(slider.value);
+        }
+
+        function zoomTimelineOut() {
+            const slider = document.getElementById('timelineZoom');
+            slider.value = Math.max(10, parseInt(slider.value) - 20);
+            setTimelineZoom(slider.value);
+        }
+
+        function selectTool(tool) {
+            selectedTool = tool;
+            document.querySelectorAll('[id^="tool"]').forEach(el => {
+                el.classList.remove('bg-primary', 'text-white');
+                el.classList.add('text-slate-400');
+            });
+            document.getElementById('tool' + tool.charAt(0).toUpperCase() + tool.slice(1)).classList.add('bg-primary', 'text-white');
+            document.getElementById('tool' + tool.charAt(0).toUpperCase() + tool.slice(1)).classList.remove('text-slate-400');
+        }
+
+        function updateTransform(property, value) {
+            switch(property) {
+                case 'scale':
+                    document.getElementById('scaleValue').textContent = value + '%';
+                    break;
+                case 'rotation':
+                    document.getElementById('rotationValue').textContent = value + '°';
+                    break;
+                case 'opacity':
+                    document.getElementById('opacityValue').textContent = value + '%';
+                    break;
+                case 'x':
+                case 'y':
+                    break;
+            }
+            showToast(`Transform ${property} updated`, 'success');
+        }
+
+        function updateColor(property, value) {
+            const ids = {
+                temperature: 'tempValue',
+                tint: 'tintValue',
+                saturation: 'satValue',
+                contrast: 'contrastValue',
+                exposure: 'exposureValue'
+            };
+            if (ids[property]) {
+                const suffix = property === 'saturation' ? '%' : '';
+                document.getElementById(ids[property]).textContent = value + suffix;
+            }
+        }
+
+        function applyEffect(effect) {
+            const filters = document.getElementById('appliedFilters');
+            if (filters.querySelector('p')) filters.innerHTML = '';
+            
+            const filterItem = document.createElement('div');
+            filterItem.className = 'flex items-center justify-between bg-panel-dark border border-border-dark rounded p-2';
+            filterItem.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-sm">auto_awesome</span>
+                    <span class="text-[11px] font-medium capitalize">${effect}</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button class="text-slate-500 hover:text-white" onclick="editFilter(this)">
+                        <span class="material-symbols-outlined text-sm">tune</span>
+                    </button>
+                    <button class="text-slate-500 hover:text-red-500" onclick="removeFilter(this)">
+                        <span class="material-symbols-outlined text-sm">close</span>
+                    </button>
+                </div>
+            `;
+            filters.appendChild(filterItem);
+            showToast(`Effect "${effect}" applied`, 'success');
+        }
+
+        function applyTransition(transition) {
+            showToast(`Transition "${transition}" added to timeline`, 'success');
+        }
+
+        function addKeyframe() {
+            const list = document.getElementById('keyframesList');
+            if (list.querySelector('p')) list.innerHTML = '';
+            
+            const keyframe = document.createElement('div');
+            keyframe.className = 'flex items-center justify-between bg-panel-dark border border-border-dark rounded p-2';
+            keyframe.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <span-3 class="w h-3 rounded-full bg-amber-400"></span>
+                    <span class="text-[11px] font-medium">Scale: 100%</span>
+                </div>
+                <span class="text-[10px] text-slate-500">${document.getElementById('timecode').textContent.split(':')[0]}:${document.getElementById('timecode').textContent.split(':')[1]}</span>
+            `;
+            list.appendChild(keyframe);
+            showToast('Keyframe added', 'success');
+        }
+
+        function applyPreset(preset) {
+            showToast(`Animation preset "${preset}" applied`, 'success');
+        }
+
+        function showRightTab(tab) {
+            ['properties', 'effects', 'keyframes'].forEach(t => {
+                document.getElementById('panel' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('hidden');
+                document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.remove('text-white', 'bg-white/5', 'border-primary');
+                document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('text-slate-500');
+            });
+            
+            document.getElementById('panel' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('hidden');
+            document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('text-white', 'bg-white/5', 'border-primary');
+            document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('text-slate-500');
+        }
+
+        function setEditorMode(mode) {
+            ['edit', 'color', 'audio'].forEach(m => {
+                document.getElementById('mode' + m.charAt(0).toUpperCase() + m.slice(1)).classList.remove('bg-primary', 'text-white');
+                document.getElementById('mode' + m.charAt(0).toUpperCase() + m.slice(1)).classList.add('text-slate-400');
+            });
+            document.getElementById('mode' + mode.charAt(0).toUpperCase() + mode.slice(1)).classList.add('bg-primary', 'text-white');
+            document.getElementById('mode' + mode.charAt(0).toUpperCase() + mode.slice(1)).classList.remove('text-slate-400');
+        }
+
+        function openMediaLibrary() {
+            document.getElementById('mediaLibraryModal').classList.remove('hidden');
+            loadMediaLibrary();
+        }
+
+        function loadMediaLibrary() {
+            const grid = document.getElementById('mediaGrid');
+            const sampleMedia = [
+                { type: 'video', name: 'Sample_Video.mp4', duration: '0:30' },
+                { type: 'video', name: 'B-Roll_City.mp4', duration: '0:45' },
+                { type: 'audio', name: 'Background_Music.mp3', duration: '2:30' },
+                { type: 'image', name: 'Thumbnail_01.jpg', duration: 'IMG' },
+                { type: 'video', name: 'Interview_Clip.mp4', duration: '1:15' },
+                { type: 'audio', name: 'Sound_Effect.wav', duration: '0:05' },
+            ];
+            
+            grid.innerHTML = sampleMedia.map((media, i) => `
+                <div class="asset-card" onclick="selectMedia(this)" data-type="${media.type}" data-name="${media.name}">
+                    <div class="aspect-video bg-gradient-to-br ${media.type === 'video' ? 'from-primary/30 to-purple-900/50' : media.type === 'audio' ? 'from-green-500/30 to-emerald-900/50' : 'from-blue-500/30 to-cyan-900/50'} flex items-center justify-center">
+                        <span class="material-symbols-outlined text-3xl text-white/50">${media.type === 'video' ? 'videocam' : media.type === 'audio' ? 'audio_file' : 'image'}</span>
+                        <div class="absolute bottom-1 right-1 bg-black/60 px-1.5 py-0.5 rounded text-[9px]">${media.duration}</div>
+                    </div>
+                    <div class="p-2">
+                        <p class="text-xs truncate">${media.name}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectMedia(element) {
+            document.querySelectorAll('#mediaGrid .asset-card').forEach(c => c.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+
+        function addSelectedMedia() {
+            const selected = document.querySelector('#mediaGrid .asset-card.selected');
+            if (selected) {
+                showToast('Media added to timeline', 'success');
+                closeModal('mediaLibraryModal');
+            } else {
+                showToast('Please select media first', 'error');
+            }
+        }
+
+        function exportVideo() {
+            document.getElementById('exportModal').classList.remove('hidden');
+        }
+
+        function startExport() {
+            showToast('Export started! This may take a while...', 'success');
+            closeModal('exportModal');
+        }
+
+        function saveProject() {
+            showToast('Project saved!', 'success');
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT') return;
+            
+            switch(e.key.toLowerCase()) {
+                case ' ':
+                    e.preventDefault();
+                    togglePlay();
+                    break;
+                case 'v':
+                    selectTool('select');
+                    break;
+                case 'b':
+                    selectTool('blade');
+                    break;
+                case 't':
+                    selectTool('text');
+                    break;
+                case 'h':
+                    selectTool('hand');
+                    break;
+                case 'z':
+                    selectTool('zoom');
+                    break;
+            }
+        });
+
+        // Initialize on load
+        window.onload = initEditor;
+    </script>
+</body>
+</html>
